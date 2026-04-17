@@ -49,7 +49,7 @@ h1{
   display: grid; 
   grid-template-columns: 1fr auto; 
   grid-template-rows: auto auto;
-  grid-row-gap: 16px;
+  grid-row-gap: 12px;
 }
 
 .description{
