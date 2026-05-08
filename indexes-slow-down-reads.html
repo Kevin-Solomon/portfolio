@@ -27,6 +27,16 @@
     .highlight { color: #f0883e; font-weight: bold; }
     .green { color: #3fb950; font-weight: bold; }
     .red { color: #f85149; font-weight: bold; }
+
+    @media (max-width: 768px) {
+      html, body { height: auto; overflow: auto; }
+      body { padding: 16px; }
+      h1 { font-size: 16px; }
+      .charts { grid-template-columns: 1fr; flex: none; }
+      .full-width { grid-column: auto; }
+      .chart-box { min-height: 250px; }
+      .chart-box h2 { font-size: 12px; }
+    }
   </style>
 </head>
 <body>
