@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySQL Query Performance</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100vh; overflow: hidden; }
+    body { background: #0d1117; color: #e6edf3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace; padding: 20px; display: flex; flex-direction: column; }
+    h1 { text-align: center; margin-bottom: 4px; font-size: 20px; }
+    .subtitle { text-align: center; color: #8b949e; margin-bottom: 8px; font-size: 13px; }
+    .blog-link { text-align: center; margin-bottom: 16px; font-size: 13px; }
+    .blog-link a { color: #58a6ff; text-decoration: none; }
+    .blog-link a:hover { text-decoration: underline; }
+    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1200px; margin: 0 auto; flex: 1; min-height: 0; width: 100%; }
+    .chart-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; min-height: 0; }
+    .chart-box h2 { font-size: 14px; margin-bottom: 8px; color: #e6edf3; flex-shrink: 0; }
+    .chart-box canvas { flex: 1; min-height: 0; }
+    .full-width { grid-column: 1 / -1; }
+    .insight { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; max-width: 1200px; margin: 30px auto 0; }
+    .insight h2 { font-size: 16px; margin-bottom: 12px; }
+    .insight ul { list-style: none; padding: 0; }
+    .insight li { padding: 6px 0; color: #8b949e; font-size: 14px; }
+    .insight li::before { content: "→ "; color: #58a6ff; }
+    .highlight { color: #f0883e; font-weight: bold; }
+    .green { color: #3fb950; font-weight: bold; }
+    .red { color: #f85149; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>MySQL Query Performance vs Table Size</h1>
+  <p class="subtitle">Without Index → With Index | orders table on InnoDB (MariaDB)</p>
+  <p class="blog-link"><a href="https://kevinsolomon27591.substack.com/p/indexes-double-edged-sword" target="_blank">Read the full blog post →</a></p>
+
+  <div class="charts">
+    <div class="chart-box full-width">
+      <h2>Read Query Time (SELECT) — Without Index</h2>
+      <canvas id="readChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h2>Write Query Time (INSERT) — Without Index</h2>
+      <canvas id="writeChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h2>After Index — Read vs Write at ~10M rows</h2>
+      <canvas id="indexChart"></canvas>
+    </div>
+  </div>
+
+
+  <script>
+    const labels = ['100K', '200K', '300K', '1.3M', '10M'];
+    const readTimes = [13.79, 15.98, 31.79, 169.23, 1882.33];
+    const writeTimes = [1.95, 1.12, 1.30, 1.12, 1.29];
+
+    const commonOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y.toFixed(2)} ms`
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Table Size (rows)', color: '#8b949e' },
+          ticks: { color: '#8b949e' },
+          grid: { color: '#21262d' }
+        },
+        y: {
+          title: { display: true, text: 'Query Time (ms)', color: '#8b949e' },
+          ticks: { color: '#8b949e' },
+          grid: { color: '#21262d' }
+        }
+      }
+    };
+
+    // Read chart
+    new Chart(document.getElementById('readChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'SELECT query time',
+          data: readTimes,
+          borderColor: '#f85149',
+          backgroundColor: 'rgba(248, 81, 73, 0.1)',
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: '#f85149',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: commonOptions
+    });
+
+    // Write chart
+    new Chart(document.getElementById('writeChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'INSERT query time',
+          data: writeTimes,
+          borderColor: '#3fb950',
+          backgroundColor: 'rgba(63, 185, 80, 0.1)',
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: '#3fb950',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          ...commonOptions.scales,
+          y: {
+            ...commonOptions.scales.y,
+            min: 0,
+            max: 15
+          }
+        }
+      }
+    });
+
+    // Index comparison chart
+    new Chart(document.getElementById('indexChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Read (SELECT)', 'Write (INSERT)'],
+        datasets: [
+          {
+            label: 'Before Index',
+            data: [2148.28, 1.29],
+            backgroundColor: 'rgba(248, 81, 73, 0.7)',
+            borderColor: '#f85149',
+            borderWidth: 1
+          },
+          {
+            label: 'After Index',
+            data: [1.46, 21.45],
+            backgroundColor: 'rgba(63, 185, 80, 0.7)',
+            borderColor: '#3fb950',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: { color: '#e6edf3' }
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)} ms`
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#8b949e' },
+            grid: { color: '#21262d' }
+          },
+          y: {
+            title: { display: true, text: 'Query Time (ms)', color: '#8b949e' },
+            ticks: { color: '#8b949e' },
+            grid: { color: '#21262d' },
+            type: 'logarithmic'
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
