@@ -614,7 +614,7 @@ const errors = [
   { name: "BadRequestError", msg: "\"variantIds\" is required", endpoint: "GET /api/storefronts/v1.1/customer-reviews", events: 488, rca: true, rcaId: "variantids-localhost", severity: "low", ignored: true },
   { name: "TypeError", msg: "Cannot destructure property 'orderId' of '(intermediate value)' as it is undefined.", endpoint: "POST /webhooks/receive-message", events: 8400, rca: true, rcaId: "cod-destructure", severity: "low" },
   { name: "ForbiddenError", msg: "This specific order with invalid free products operation is not allowed.", endpoint: "POST /api/storefronts/v2/orders", events: 88, rca: true, rcaId: "freebie-guard", severity: "high", resolved: true },
-  { name: "AxiosError", msg: "Request failed with status code 500", endpoint: "POST /api/admins/v1/invalidation", events: 1700, rca: true, rcaId: "easyecom-429", severity: "high" },
+  { name: "AxiosError", msg: "Request failed with status code 500", endpoint: "POST /api/admins/v1/invalidation", events: 1700, rca: true, rcaId: "easyecom-429", severity: "medium" },
   { name: "BadRequestError", msg: "\"name\" is required", endpoint: "GET /api/storefronts/v1.1/order", events: 2300, rca: true, rcaId: "warranty-name", severity: "low" },
   { name: "TypeError", msg: "Cannot read properties of undefined (reading 'days')", endpoint: "POST /api/storefronts/v1.1/orders/warranty-registrations", events: 17, rca: true, rcaId: "warranty-days", severity: "low", resolved: true },
   { name: "InternalServerError", msg: "An error occurred while sending the OTP with +916359667855. Please try again later.", endpoint: "POST /api/storefronts/v1.1/customers/otps", events: 1500, rca: true, rcaId: "otp-typesense", severity: "low" },
