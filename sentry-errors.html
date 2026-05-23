@@ -387,6 +387,46 @@
     .rca-proof-label { font-size: 10px; padding: 8px 10px; }
   }
 
+  /* Sort Controls */
+  .sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .sort-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+  }
+
+  .sort-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sort-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+  }
+
+  .sort-btn.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
   /* RCA Dropdown */
   .rca-dropdown-wrapper {
     max-height: 0;
@@ -553,6 +593,12 @@
       <div class="stat-value" style="color:#22c55e;">30</div>
       <div class="stat-label">RCA Complete</div>
     </div>
+  </div>
+
+  <div class="sort-controls">
+    <span class="sort-label">Sort by</span>
+    <button class="sort-btn active" data-sort="events">Events</button>
+    <button class="sort-btn" data-sort="severity">Severity</button>
   </div>
 
   <div class="table-header">
@@ -1440,42 +1486,69 @@ await this.interaktUtils.sendMessageUsingTemplate({
   </div></div>`
 };
 
-errors.sort((a, b) => b.events - a.events);
-errors.forEach((e, i) => {
-  const row = document.createElement('div');
-  row.className = 'error-row';
-  if (e.rca) row.classList.add('has-rca');
-  if (e.resolved) row.classList.add('resolved');
-  if (e.ignored) row.classList.add('ignored');
-  const chevron = e.rca ? '<span class="rca-chevron">▸</span>' : '';
-  const rcaTag = e.rca ? '<span class="rca-tag">RCA</span>' : '';
-  const resolvedTag = e.resolved ? '<span class="resolved-tag">✓ RESOLVED</span>' : e.ignored ? '<span class="ignored-tag">⊘ IGNORE</span>' : '';
-  const severityChip = e.severity ? `<span class="severity-chip ${e.severity}">${e.severity}</span>` : '';
-  row.innerHTML = `
-    <div class="error-info">
-      <div class="error-name"><span class="row-index">${String(i + 1).padStart(2, '0')}</span>${e.name}${rcaTag}${severityChip}${resolvedTag}</div>
-      <div class="error-message" style="padding-left:32px">${e.msg}</div>
-      <div class="error-endpoint" style="padding-left:32px">${e.endpoint}</div>
-    </div>
-    <div class="events-count ${eventsClass(e.events)}">${formatEvents(e.events)}</div>
-    <div class="rca-chevron-wrap">${chevron}</div>
-  `;
-  container.appendChild(row);
+const severityOrder = { high: 0, medium: 1, low: 2 };
+let currentSort = 'events';
 
-  if (e.rca) {
-    const dropdown = document.createElement('div');
-    dropdown.className = 'rca-dropdown-wrapper';
-    dropdown.innerHTML = rcaContent[e.rcaId];
-    container.appendChild(dropdown);
-    row.style.cursor = 'pointer';
-    row.addEventListener('click', () => {
-      const isOpen = dropdown.classList.toggle('open');
-      row.classList.toggle('expanded', isOpen);
-      const chev = row.querySelector('.rca-chevron');
-      if (chev) chev.textContent = isOpen ? '\u25be' : '\u25b8';
-    });
-  }
+function renderErrors(sortBy) {
+  const sorted = [...errors].sort((a, b) => {
+    if (sortBy === 'severity') {
+      const aS = a.severity ? severityOrder[a.severity] : 3;
+      const bS = b.severity ? severityOrder[b.severity] : 3;
+      if (aS !== bS) return aS - bS;
+      return b.events - a.events;
+    }
+    return b.events - a.events;
+  });
+
+  container.innerHTML = '';
+
+  sorted.forEach((e, i) => {
+    const row = document.createElement('div');
+    row.className = 'error-row';
+    if (e.rca) row.classList.add('has-rca');
+    if (e.resolved) row.classList.add('resolved');
+    if (e.ignored) row.classList.add('ignored');
+    const chevron = e.rca ? '<span class="rca-chevron">▸</span>' : '';
+    const rcaTag = e.rca ? '<span class="rca-tag">RCA</span>' : '';
+    const resolvedTag = e.resolved ? '<span class="resolved-tag">✓ RESOLVED</span>' : e.ignored ? '<span class="ignored-tag">⊘ IGNORE</span>' : '';
+    const severityChip = e.severity ? `<span class="severity-chip ${e.severity}">${e.severity}</span>` : '';
+    row.innerHTML = `
+      <div class="error-info">
+        <div class="error-name"><span class="row-index">${String(i + 1).padStart(2, '0')}</span>${e.name}${rcaTag}${severityChip}${resolvedTag}</div>
+        <div class="error-message" style="padding-left:32px">${e.msg}</div>
+        <div class="error-endpoint" style="padding-left:32px">${e.endpoint}</div>
+      </div>
+      <div class="events-count ${eventsClass(e.events)}">${formatEvents(e.events)}</div>
+      <div class="rca-chevron-wrap">${chevron}</div>
+    `;
+    container.appendChild(row);
+
+    if (e.rca) {
+      const dropdown = document.createElement('div');
+      dropdown.className = 'rca-dropdown-wrapper';
+      dropdown.innerHTML = rcaContent[e.rcaId];
+      container.appendChild(dropdown);
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', () => {
+        const isOpen = dropdown.classList.toggle('open');
+        row.classList.toggle('expanded', isOpen);
+        const chev = row.querySelector('.rca-chevron');
+        if (chev) chev.textContent = isOpen ? '▾' : '▸';
+      });
+    }
+  });
+}
+
+document.querySelectorAll('.sort-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSort = btn.dataset.sort;
+    renderErrors(currentSort);
+  });
 });
+
+renderErrors('events');
 </script>
 </body>
 </html>
