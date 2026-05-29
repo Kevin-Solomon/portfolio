@@ -658,7 +658,7 @@ const errors = [
   { name: "BadRequestError", msg: "\"discountCodeId\" must be a valid GUID", endpoint: "PATCH /api/admins/v1/discounts/price-rules/discount-codes/:discountCodeId", events: 1 },
   { name: "Error", msg: "Node is either not clickable or not an Element", endpoint: "CdpElementHandle.clickablePoint(puppeteer-core)", events: 1 },
   { name: "AxiosError", msg: "Google API error – [503] The service is currently unavailable.", endpoint: "POST /api/storefronts/v1.1/orders/warranty-registrations", events: 4 },
-  { name: "NotFoundError", msg: "Cannot find collectionMember with '8a261e0f-d000-4447-b917-188aaf61232e' identifier.", endpoint: "GET /api/admins/v1/product-collections/:collectionId", events: 19 },
+  { name: "NotFoundError", msg: "Cannot find collectionMember with '8a261e0f-d000-4447-b917-188aaf61232e' identifier.", endpoint: "GET /api/admins/v1/product-collections/:collectionId", events: 19, rca: true, rcaId: "collection-member-deleted", severity: "medium" },
   { name: "Error", msg: "Execution context was destroyed, most likely because of a navigation.", endpoint: "rewriteError(puppeteer-core)", events: 1 },
   { name: "BadRequestError", msg: "You have already reviewed this product.", endpoint: "POST /api/storefronts/v1.1/customer-reviews", events: 1 },
   { name: "AxiosError", msg: "Google API error – [404] Requested entity was not found.", endpoint: "POST /api/storefronts/v1.1/orders/warranty-registrations", events: 1 },
@@ -666,7 +666,7 @@ const errors = [
   { name: "Error", msg: "AxiosError: Request failed with status code 400", endpoint: "POST /api/admins/v1/authenticate", events: 395, rca: true, rcaId: "google-oauth-400", severity: "low" },
   { name: "NotFoundError", msg: "Cannot find product with 'admin-index' identifier.", endpoint: "GET /api/admins/v1/products/:id", events: 1 },
   { name: "TimeoutError", msg: "Waiting failed: 30000ms exceeded", endpoint: "InstaMartScraperService (instamart-scraper.service)", events: 1 },
-  { name: "NotFoundError", msg: "Cannot find pincode with '180000' identifier.", endpoint: "POST /api/storefronts/v1.1/customers/addresses", events: 4 },
+  { name: "NotFoundError", msg: "Cannot find pincode with '180000' identifier.", endpoint: "POST /api/storefronts/v1.1/customers/addresses", events: 4, rca: true, rcaId: "pincode-not-found", severity: "low", ignored: true },
   { name: "TypeError", msg: "Cannot read properties of null (reading 'phoneNumber')", endpoint: "GET /api/storefronts/v1.1/orders", events: 18, rca: true, rcaId: "orders-phone-localhost", severity: "low", ignored: true },
   { name: "BadRequestError", msg: "\"term\" is not allowed to be empty", endpoint: "POST /api/storefronts/v1.1/sessions", events: 1 },
   { name: "BadRequestError", msg: "Cart is not active", endpoint: "POST /api/storefronts/v2/orders", events: 4 },
@@ -1483,7 +1483,76 @@ await this.interaktUtils.sendMessageUsingTemplate({
         <p><strong>Add a defensive check before destructuring.</strong> Before attempting to destructure <code>orderId</code> from the lookup result, verify the result is not <code>null</code> / <code>undefined</code>. If no order is associated with the <code>messageId</code>, return early from the handler. This is a one-line guard \u2014 e.g. <code>if (!result) return;</code> \u2014 that will eliminate all 8.4k events.</p>
       </div>
     </div>
-  </div></div>`
+  </div></div>`,
+  "collection-member-deleted": `<div class="rca-dropdown"><div class="rca-dropdown-inner">
+    <div class="rca-dropdown-header">
+      <span class="rca-badge">ROOT CAUSE ANALYSIS</span>
+      <span class="rca-severity-chip medium">Medium</span>
+      <span class="rca-endpoint-tag">GET /api/admins/v1/product-collections/:collectionId</span>
+    </div>
+    <div class="rca-body">
+      <h3>What\u2019s Happening</h3>
+      <p>When a product is moved from <strong>published</strong> to <strong>archived</strong> status, the <code>syncAll</code> methods on <code>productCollectionService</code>, <code>cartService</code>, and <code>productService</code> are called concurrently via <code>Promise.all</code>. The <code>productCollectionService.syncAll</code> call removes the product\u2019s variants from their associated collections. Later, when a Hox team member tries to access that collection via the admin panel, the GET endpoint finds zero collection members and the guard <code>if (!collectionMembers || collectionMembers.length === 0)</code> throws a <code>NotFoundError</code> \u2014 conflating an empty collection with a non-existent one.</p>
+
+      <h3>Error Flow</h3>
+      <div class="rca-flow">
+        <span class="rca-flow-step">Product status changed from Published \u2192 Archived</span>
+        <span class="rca-flow-arrow">\u2192</span>
+        <span class="rca-flow-step"><code>productCollectionService.syncAll</code> removes variants from collections</span>
+        <span class="rca-flow-arrow">\u2192</span>
+        <span class="rca-flow-step">Collection now has zero members</span>
+        <span class="rca-flow-arrow">\u2192</span>
+        <span class="rca-flow-step problem"><code>collectionMembers.length === 0</code> check treats empty as not found</span>
+        <span class="rca-flow-arrow">\u2192</span>
+        <span class="rca-flow-step problem">NotFoundError thrown for a valid collection</span>
+      </div>
+
+      <h3>Why This Is Medium Severity</h3>
+      <p>This error surfaces on the admin side when Hox team members view collections \u2014 it does not directly affect storefront customers. However, it blocks the team from managing collections that had all their products archived, making it a workflow blocker.</p>
+
+      <h3>Root Cause</h3>
+      <p>When a product transitions from published to archived, the code calls <code>productCollectionService.syncAll</code> which removes the product\u2019s variants from their collections entirely. This can leave a collection with zero members. The GET endpoint then conflates an empty collection with a non-existent one \u2014 the guard <code>if (!collectionMembers || collectionMembers.length === 0)</code> throws a <code>NotFoundError</code> using the <code>collectionId</code> as the identifier, when an empty collection is actually a valid state.</p>
+
+      <h3>Proposed Fix</h3>
+      <div class="rca-fix">
+        <p><strong>Immediate fix:</strong> Remove the <code>collectionMembers.length === 0</code> condition from the guard in the GET endpoint. The check should only throw <code>NotFoundError</code> when the collection itself does not exist (<code>!collectionMembers</code>), not when it has zero members. Return the collection with an empty members array instead.</p>
+        <p><strong>Longer-term consideration:</strong> Re-evaluate whether <code>productCollectionService.syncAll</code> should remove variants from collections when archiving. Archiving a product could instead preserve collection membership with a status indicator, preventing collections from being emptied unexpectedly.</p>
+      </div>
+    </div>
+  </div></div>`,
+  "pincode-not-found": `<div class="rca-dropdown"><div class="rca-dropdown-inner">
+    <div class="rca-dropdown-header">
+      <span class="rca-badge">ROOT CAUSE ANALYSIS</span>
+      <span class="rca-severity-chip low">Low</span>
+      <span class="rca-endpoint-tag">POST /api/storefronts/v1.1/customers/addresses</span>
+    </div>
+    <div class="rca-body">
+      <h3>What\u2019s Happening</h3>
+      <p>When a customer tries to create or edit an address, the API validates the pincode against our database of Indian pincodes. If the pincode does not exist in our database (e.g., <code>180000</code>, <code>120006</code>), a <code>NotFoundError</code> is thrown, preventing the user from saving the address.</p>
+
+      <h3>Error Flow</h3>
+      <div class="rca-flow">
+        <span class="rca-flow-step">User enters a pincode (e.g. 180000)</span>
+        <span class="rca-flow-arrow">\u2192</span>
+        <span class="rca-flow-step">API looks up pincode in database</span>
+        <span class="rca-flow-arrow">\u2192</span>
+        <span class="rca-flow-step">Pincode not found in DB</span>
+        <span class="rca-flow-arrow">\u2192</span>
+        <span class="rca-flow-step problem">NotFoundError thrown</span>
+      </div>
+
+      <h3>Why This Is Low Severity</h3>
+      <p>This is <strong>expected behaviour</strong>. The pincodes triggering this error (e.g., <code>180000</code>, <code>120006</code>) are valid six-digit formats but do not correspond to real Indian pincodes \u2014 cross-referenced against GoQwik and India Post. The error prevents the user from proceeding without a valid pincode, which is standard address validation behaviour across most e-commerce sites.</p>
+
+      <h3>Root Cause</h3>
+      <p>Users are entering syntactically valid but non-existent Indian pincodes. The API correctly rejects these since they do not exist in our pincode database. This is intentional validation \u2014 no code fix is needed.</p>
+
+      <h3>Proposed Fix</h3>
+      <div class="rca-fix">
+        <p><strong>No fix required.</strong> This is expected behaviour. The error can be safely ignored in Sentry monitoring.</p>
+      </div>
+    </div>
+  </div></div>`,
 };
 
 const severityOrder = { high: 0, medium: 1, low: 2 };
