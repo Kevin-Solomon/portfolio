@@ -427,6 +427,30 @@
     color: var(--accent);
   }
 
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+  }
+
+  .filter-btn.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
   /* RCA Dropdown */
   .rca-dropdown-wrapper {
     max-height: 0;
@@ -599,6 +623,8 @@
     <span class="sort-label">Sort by</span>
     <button class="sort-btn active" data-sort="events">Events</button>
     <button class="sort-btn" data-sort="severity">Severity</button>
+    <span style="margin-left:auto"></span>
+    <button class="filter-btn active" id="hide-resolved-btn" onclick="toggleHideResolved()">Show resolved / ignored</button>
   </div>
 
   <div class="table-header">
@@ -1557,9 +1583,19 @@ await this.interaktUtils.sendMessageUsingTemplate({
 
 const severityOrder = { high: 0, medium: 1, low: 2 };
 let currentSort = 'events';
+let hideResolved = true;
+
+function toggleHideResolved() {
+  hideResolved = !hideResolved;
+  const btn = document.getElementById('hide-resolved-btn');
+  btn.classList.toggle('active', hideResolved);
+  btn.textContent = hideResolved ? 'Show resolved / ignored' : 'Hide resolved / ignored';
+  renderErrors(currentSort);
+}
 
 function renderErrors(sortBy) {
-  const sorted = [...errors].sort((a, b) => {
+  const filtered = hideResolved ? errors.filter(e => !e.resolved && !e.ignored) : errors;
+  const sorted = [...filtered].sort((a, b) => {
     if (sortBy === 'severity') {
       const aS = a.severity ? severityOrder[a.severity] : 3;
       const bS = b.severity ? severityOrder[b.severity] : 3;
