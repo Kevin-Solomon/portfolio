@@ -716,7 +716,7 @@ const errors = [
   { name: "InternalServerError", msg: "Internal server error", endpoint: "POST /api/storefronts/v2/orders", events: 15, rca: true, rcaId: "orders-shiprocket", severity: "low", resolved: true },
   { name: "BadRequestError", msg: "\"shippingCustomerAddressId\" is not allowed to be empty", endpoint: "POST /api/storefronts/v2/payments/snapmint/eligibility", events: 13, rca: true, rcaId: "snapmint-address", severity: "low", ignored: true },
   { name: "ForbiddenError", msg: "This specific order with invalid free products operation is not allowed.", endpoint: "PATCH /api/storefronts/v2/orders/:orderId", events: 4, rca: true, rcaId: "freebie-guard-patch", severity: "high", resolved: true },
-  { name: "BadRequestError", msg: "\"discountCode\" is required", endpoint: "DELETE /api/storefronts/v1.1/carts/:cartId/discount-code", events: 34, sentryUrl: "https://sentry.houseofx.dev/organizations/sentry/issues/8132/" },
+  { name: "BadRequestError", msg: "\"discountCode\" is required", endpoint: "DELETE /api/storefronts/v1.1/carts/:cartId/discount-code", events: 34, assignee: "Aaliya", sentryUrl: "https://sentry.houseofx.dev/organizations/sentry/issues/8132/" },
   { name: "BadRequestError", msg: "\"discountCode\" is not allowed to be empty", endpoint: "PATCH /api/storefronts/v1.1/carts/:cartId/discount-code", events: 1, assignee: "Aaliya", sentryUrl: "https://sentry.houseofx.dev/organizations/sentry/issues/8369/" },
   { name: "BadRequestError", msg: "Cannot review order until it is delivered.", endpoint: "POST /api/storefronts/v1.1/customer-reviews", events: 3, rca: true, rcaId: "review-not-delivered", severity: "low", ignored: true },
   { name: "Error", msg: "read ECONNRESET", endpoint: "AxiosError.from(axios.dist.node:axios)", events: 1 },
