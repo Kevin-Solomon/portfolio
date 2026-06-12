@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kevin Solomon — Engineering Impact Log</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface-2: #1a1a24;
+    --border: #2a2a35;
+    --text: #e8e6e3;
+    --text-dim: #8b8a8e;
+    --text-muted: #5a5a64;
+    --accent: #f59e0b;
+    --accent-soft: rgba(245, 158, 11, 0.1);
+    --incident: #f45d48;
+    --incident-soft: rgba(244, 93, 72, 0.08);
+    --feature: #6366f1;
+    --feature-soft: rgba(99, 102, 241, 0.08);
+    --optimization: #22c55e;
+    --optimization-soft: rgba(34, 197, 94, 0.08);
+    --infra: #06b6d4;
+    --infra-soft: rgba(6, 182, 212, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    padding: 48px 20px;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  .container { max-width: 800px; margin: 0 auto; }
+
+  header {
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  header h1 span { color: var(--accent); }
+
+  header p {
+    color: var(--text-dim);
+    font-size: 14px;
+    max-width: 600px;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.2;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 4px;
+  }
+
+  .achievement-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .achievement-card:hover { border-color: #3a3a48; }
+
+  .card-stripe { height: 3px; }
+  .card-stripe.incident { background: var(--incident); }
+  .card-stripe.feature { background: var(--feature); }
+  .card-stripe.optimization { background: var(--optimization); }
+  .card-stripe.infra { background: var(--infra); }
+
+  .card-body { padding: 28px; }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .date-badge {
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+  }
+
+  .type-tag {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .type-tag.incident { background: var(--incident-soft); color: var(--incident); }
+  .type-tag.feature { background: var(--feature-soft); color: var(--feature); }
+  .type-tag.optimization { background: var(--optimization-soft); color: var(--optimization); }
+  .type-tag.infra { background: var(--infra-soft); color: var(--infra); }
+
+  .card-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 6px;
+  }
+
+  .card-subtitle {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  .impact-strip {
+    display: flex;
+    gap: 24px;
+    padding: 16px 20px;
+    background: var(--surface-2);
+    border-radius: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .impact-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .impact-value {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .impact-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card-section { margin-bottom: 20px; }
+  .card-section:last-child { margin-bottom: 0; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .card-section p {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .impact-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .impact-list li {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .impact-list li strong {
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .impact-list li .dim {
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  .bottom-line {
+    margin-top: 20px;
+    padding: 14px 18px;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .bottom-line strong {
+    color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 24px 16px; }
+    header h1 { font-size: 24px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .stat-value { font-size: 22px; }
+    .card-body { padding: 20px; }
+    .card-title { font-size: 17px; }
+    .impact-strip { gap: 16px; }
+    .impact-value { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Engineering <span>Impact Log</span></h1>
+    <p>Quantified achievements from building and operating production systems at House of X.</p>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--accent);">10</div>
+      <div class="stat-label">Achievements</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--optimization);">930+</div>
+      <div class="stat-label">Hours Saved / yr</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">$133K+</div>
+      <div class="stat-label">Revenue Protected / yr</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">$48K+</div>
+      <div class="stat-label">Cost Savings / yr</div>
+    </div>
+  </div>
+
+  <!-- 1. Order Placement Outage — SEV-1 RCA -->
+  <div class="achievement-card">
+    <div class="card-stripe incident"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="date-badge">May 13, 2026</span>
+        <span class="type-tag incident">SEV-1 Incident</span>
+      </div>
+      <h2 class="card-title">Order Placement Outage — 14-Hour RCA & Recovery</h2>
+      <div class="card-subtitle">Led the investigation and resolution of a critical 14-hour outage where 100% of order placements failed. Identified root cause, restored service, and established 6 new engineering practices to protect the order pipeline.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">14 hrs</div>
+          <div class="impact-label">Outage Duration</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">100%</div>
+          <div class="impact-label">Orders Failing</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">251</div>
+          <div class="impact-label">Users Impacted</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">6</div>
+          <div class="impact-label">New Practices Established</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>A routine deployment (ShipRocket integration) included a debugging tool called axios-curlirize that had a hidden flaw. It created a circular reference in the data it handled, like two mirrors facing each other creating infinite reflections. When our logging system tried to record this data, it crashed. Since logging runs on every order request, every single order failed from 10:50 PM on May 12 until 12:40 PM on May 13. No automated alert existed for order failures, so the outage went undetected for ~12 hours until the marketing team noticed no orders had come through.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>Traced the failure to the recent deployment and rolled it back to restore service immediately. Then did a deeper investigation the next day to find the true root cause: it wasn't just the debugging tool, it was that our logging system was fragile enough that a single bad data structure could take down the entire order pipeline. Made the logging system resilient to handle unexpected data without crashing. Prepared a full incident report for leadership with root cause analysis, business impact (251 impacted users, 76 of whom had clicked place order), and a retargeting campaign plan for affected customers.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>Service fully restored</strong> with zero data loss. No partial or corrupted orders were created</li>
+          <li><strong>Root cause identified beyond the surface</strong>, rolling back fixed the symptom, but the investigation revealed the logging fragility that could have been triggered by something else later</li>
+          <li><strong>Logging system hardened</strong> so it can never take down a customer request again</li>
+          <li><strong>Retargeting campaign planned</strong> for the 251 impacted users (76 had clicked place order) to recover lost conversions</li>
+        </ul>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Practices Established</div>
+        <ul class="impact-list">
+          <li><strong>Real-time order health monitoring</strong>, automated alerts fire within minutes if order success rates drop. No more 12-hour blind spots</li>
+          <li><strong>Mandatory staging validation</strong> before production for any change touching order flow, no exceptions</li>
+          <li><strong>Third-party tool vetting</strong> for anything that runs alongside the order pipeline, including helper and debugging tools</li>
+          <li><strong>Post-deployment smoke test</strong>, an automated test places a sample order end-to-end after every deploy. If it fails, the deployment is flagged immediately</li>
+          <li><strong>Crash-proof supporting systems</strong>, logging, analytics, and debugging tools are isolated from order processing. If they fail, they fail silently</li>
+          <li><strong>Quarterly order flow resilience reviews</strong> to catch new risks before they become incidents</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> Turned a critical 14-hour outage into a catalyst for 6 permanent engineering practices that protect the most important pipeline in the business. The fix wasn't just restoring service, it was making sure this class of failure can never happen again.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. NodeJS ECS Crash -->
+  <div class="achievement-card">
+    <div class="card-stripe incident"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="date-badge">March 24, 2026</span>
+        <span class="type-tag incident">Incident Response</span>
+      </div>
+      <h2 class="card-title">NodeJS ECS Server Crash — Event Emitter Fix</h2>
+      <div class="card-subtitle">Production server was crashing every time an unhandled error event fired, taking down the entire API and blocking all orders.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">20 min</div>
+          <div class="impact-label">Resolution Time</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">50</div>
+          <div class="impact-label">Orders Protected</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">$42K</div>
+          <div class="impact-label">Revenue Protected / yr</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">72 hrs</div>
+          <div class="impact-label">Eng Time Saved / yr</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>A Node.js EventEmitter was emitting error events without a registered listener. In Node.js, this kills the process. The entire ECS-hosted API server crashed, blocking all order processing. 50 orders were immediately impacted and the CX team was flooded with complaints across WhatsApp, Email, and Instagram. This wasn't a one-off — we had over 5 instances of this crash, each time impacting more and more orders as traffic grew. The blast radius was escalating with every occurrence.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>Identified the missing <code>.on('error')</code> handler, pushed a hotfix in 20 minutes. The process now logs and handles error events gracefully instead of crashing.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>$42,000/year</strong> in revenue protected — each crash put 50+ orders at risk, with the impact growing every time</li>
+          <li><strong>72 engineering hours/year</strong> saved — that's 9 full working days no longer spent on crash recovery and monitoring</li>
+          <li><strong>5+ recurring crashes stopped</strong> — this wasn't a one-off; each instance hit harder than the last as order volume scaled, and the fix eliminated the entire class of failures permanently</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> A 20-minute fix that prevents $42,000/year in lost revenue. Without it, the team would still be firefighting server crashes twice a month instead of building features.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Third-Party API Error Handling -->
+  <div class="achievement-card">
+    <div class="card-stripe incident"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="date-badge">January 19, 2026</span>
+        <span class="type-tag incident">Incident Response</span>
+      </div>
+      <h2 class="card-title">Third-Party API Error Handling — Retry Storm Fix</h2>
+      <div class="card-subtitle">Unhandled API failures were spamming customers with 15+ duplicate messages and creating ghost orders that required hours of manual cleanup.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">100+</div>
+          <div class="impact-label">Orders Stabilized</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">1,500+</div>
+          <div class="impact-label">Spam Msgs Prevented</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">$42K</div>
+          <div class="impact-label">Revenue Protected / yr</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">36 hrs</div>
+          <div class="impact-label">Eng Time Saved / yr</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>Third-party API failures cascaded through the order pipeline unchecked, causing retry storms that sent 15+ duplicate messages per customer. Each incident created 100+ ghost orders on Shopify that had to be manually cancelled, cross-verified with the internal system, and reconciled against the database. The full cleanup took 1-2 hours every time.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>Wrapped all third-party API calls in proper error boundaries with try-catch blocks. Failed operations now get caught and re-inserted into the processing queue for controlled retry — instead of uncontrolled retry storms.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>$42,000/year</strong> in revenue protected — 100 orders at risk per incident, at least once a month</li>
+          <li><strong>36 engineering hours/year</strong> saved — eliminated 1-2 hours of manual Shopify cleanup per incident</li>
+          <li><strong>18,000+ spam messages/year</strong> prevented — stopped 1,500+ unwanted messages per incident from hitting customers</li>
+
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> A few try-catch blocks turned $42,000/year in recurring chaos into a non-issue. The hidden cost was customer trust — a single spam storm of 15+ messages per customer drives chargebacks, negative reviews, and permanent churn.
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Snapmint Reconciler -->
+  <div class="achievement-card">
+    <div class="card-stripe feature"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="type-tag feature">Automation</span>
+      </div>
+      <h2 class="card-title">Snapmint Payment Reconciler</h2>
+      <div class="card-subtitle">Eliminated 2-3 daily CX complaints (doubling on high-traffic days) about unsynced Snapmint orders by automating reconciliation — resolution time dropped from days to minutes.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">2-3/day</div>
+          <div class="impact-label">CX Complaints Eliminated</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">3-7 days</div>
+          <div class="impact-label">Sync Delay Removed</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">730+</div>
+          <div class="impact-label">Orders Auto-Synced / yr</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">30 min</div>
+          <div class="impact-label">Max Resolution Time</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>Every day we received at least 2-3 queries about Snapmint orders not syncing — on high-traffic days the number would double. Snapmint's APIs were taking too long to resolve order statuses, leaving paid orders unsynced in our database and Shopify. Customers would see no confirmation, panic, and flood CX on WhatsApp demanding cancellations or refunds — sometimes a week after paying. This was destroying trust. Every time a complaint came in, I had to stop what I was working on, query the database to find the user, run a manual update query, and insert the order into our SQS service to trigger the sync. Pure context-switching overhead that pulled me away from feature work.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>Built a cron job that runs every 30 minutes, scans all orders from the last 24 hours that are marked as paid but not synced in our database or Shopify, and automatically triggers the sync through SQS. The entire manual workflow — database lookup, update query, SQS insertion — is now fully automated.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>CX complaints dropped to zero</strong> — went from 2-3 daily complaints (4-6 on high-traffic days) to none after going live</li>
+          <li><strong>Resolution time: days → minutes</strong> — orders that used to sit unsynced for 3-7 days now sync within 30 minutes automatically</li>
+          <li><strong>Eliminated constant context switching</strong> — no longer getting pulled out of feature work multiple times a day to manually fix sync issues</li>
+          <li><strong>Customer trust restored</strong> — customers who paid for orders no longer wait days wondering if their purchase went through</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> A single cron job eliminated a daily source of CX complaints, freed up engineering time that was being lost to repetitive manual fixes, and restored customer trust in the payment experience. The best part — since going live, not a single complaint from CX about unsynced Snapmint orders.
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Payments and Refunds Module -->
+  <div class="achievement-card">
+    <div class="card-stripe feature"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="type-tag feature">Architecture</span>
+      </div>
+      <h2 class="card-title">Payments and Refunds Module</h2>
+      <div class="card-subtitle">Rebuilt the payments architecture using Factory and Strategy patterns during the Juspay → PhonePe migration. New provider integrations dropped from 1 month to under 1 week.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">1 mo → 1 wk</div>
+          <div class="impact-label">Integration Time</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">36K+</div>
+          <div class="impact-label">Orders Processed</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">₹9Cr+</div>
+          <div class="impact-label">Total Order Value</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">3</div>
+          <div class="impact-label">Providers Onboarded</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>We needed to migrate from Juspay to PhonePe as our payment provider. The existing payments code worked, but it was tightly coupled to a single provider. Every time we needed to onboard a new payment platform it took 1 month of engineering effort. The constant back-and-forth between our team and the payment platform team slowed everything down. This was a problem because we had more providers lined up after PhonePe, and at that pace each one would eat into weeks of engineering capacity.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>Restructured the entire payments module using Factory and Strategy design patterns so that adding a new payment provider is a matter of plugging into an existing interface, not rewriting integration logic. Built the PhonePe integration on this new architecture, tested it thoroughly, and then implemented the refunds module using the same patterns. When it came time to integrate Snapmint (BNPL), the architecture proved itself: the full end-to-end integration was done in under one week.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>Integration time: 1 month → under 1 week</strong> per new payment provider, proven with the Snapmint integration</li>
+          <li><strong>Snapmint onboarded fast</strong> when it was high priority because of our high average order value, and BNPL was critical for conversion</li>
+          <li><strong>Refunds module automated</strong> using the same pattern-based architecture, removing manual processing</li>
+          <li><strong>35,000+ orders worth ₹8Cr+</strong> processed through PhonePe in the last 6 months</li>
+          <li><strong>1,000+ Snapmint orders worth ₹1Cr+</strong> processed in 10 months, enabled by the fast integration</li>
+          <li><strong>Engineering velocity protected</strong> for future provider additions. No more 1 month slowdowns or painful back-and-forth every time a new platform comes in</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> Turned payment provider integration from a multi-week engineering bottleneck into a sub-one-week plug-and-play process. The Snapmint integration proved the architecture works, and every future provider benefits from the same foundation.
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Notify Me Module -->
+  <div class="achievement-card">
+    <div class="card-stripe feature"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="type-tag feature">Feature</span>
+      </div>
+      <h2 class="card-title">Notify Me Module — Back-in-Stock Recovery</h2>
+      <div class="card-subtitle">Built a Notify Me system that replaced removing out-of-stock products from the site. 16,000+ subscribers, 500 attributed orders, ₹22L in recovered revenue.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">16K+</div>
+          <div class="impact-label">Subscribers</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">500</div>
+          <div class="impact-label">Attributed Orders</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">₹22L</div>
+          <div class="impact-label">Recovered Revenue</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">~3.1%</div>
+          <div class="impact-label">Conversion Rate</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>When products went out of stock, we used to just remove them from the listing page entirely. Customers would notice products were missing and complain to customer support asking where they went. There was no way for customers to express interest or get notified when inventory came back. The business had zero visibility into how much demand existed for unavailable products.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>Built a Notify Me button that appears on out-of-stock products. It captures the customer's phone number, first name, and last name. If the customer is already logged in, it auto-fills their details on click. All subscriber data is stored in our database. When products are restocked, we run WhatsApp campaigns through these subscriber lists to bring customers back.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>16,000+ subscribers</strong> in the product notification subscribers table across 15 different products</li>
+          <li><strong>14 notify-me campaigns</strong> sent to date, keeping customers engaged instead of losing them</li>
+          <li><strong>14 WhatsApp campaigns</strong> run, attributing ~500 orders with a total revenue of ₹22 lakhs</li>
+          <li><strong>Stopped CX complaints</strong> about missing products. Customers now see a Notify Me button instead of a vanished listing</li>
+          <li><strong>Demand visibility</strong> the business can now see exactly which out-of-stock products customers want, informing restocking decisions</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> Every rupee from Notify Me is 100% incremental revenue. These customers were complaining about missing products or leaving to competitors. Now they subscribe, come back, and buy. ₹22L recovered and growing with every new campaign.
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. hox-core Migration -->
+  <div class="achievement-card">
+    <div class="card-stripe optimization"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="type-tag optimization">Cost Optimization</span>
+      </div>
+      <h2 class="card-title">hox-core Migration — NPM Dependency Eliminated</h2>
+      <div class="card-subtitle">Moved shared reusable code from a paid NPM package into our microservices repo. Eliminated $7/month subscription, CI/CD build failures, and 2.5 years of unnecessary dependency.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">2.5 yrs</div>
+          <div class="impact-label">Unnecessary Spend</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">$7/mo</div>
+          <div class="impact-label">Recurring Cost Cut</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">0</div>
+          <div class="impact-label">Blocked Deploys from NPM</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">1</div>
+          <div class="impact-label">External Dependency Removed</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>Our reusable code lived in a separate package called hox-core, hosted on a paid NPM account at $7/month. We had been paying this subscription for about 2.5 years. The real problem wasn't just the cost. During CI/CD builds, NPM would sometimes return errors, breaking our entire build pipeline and blocking deployments. We couldn't deploy anything until NPM resolved their issue or we kept retrying. This became a serious problem during critical moments when something needed to go live immediately.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>Moved the entire hox-core reusable code into our main API services repo where our microservices already lived. All the shared code is now co-located and reused within that folder. Deleted the NPM account and cancelled the subscription entirely.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>$7/month subscription eliminated</strong> permanently, after paying ~$210 over 2.5 years for something that could live in our own repo</li>
+          <li><strong>CI/CD build failures from NPM gone</strong>, no more blocked deployments because NPM is having a bad day</li>
+          <li><strong>No more deployment delays during critical moments</strong>, when something needs to go live immediately, the build pipeline no longer depends on an external service</li>
+          <li><strong>Simpler codebase</strong>, shared code lives alongside the services that use it, no version management or package publishing overhead</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> Eliminated an unnecessary external dependency we had been paying for over 2.5 years. The money saved is small, but the real win is never having a blocked deployment because NPM decided to go down during a critical release.
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. WhatsApp OTP Bug Fix -->
+  <div class="achievement-card">
+    <div class="card-stripe incident"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="type-tag incident">Bug Fix</span>
+      </div>
+      <h2 class="card-title">OTP Login Fixes — WhatsApp + SMS Flows</h2>
+      <div class="card-subtitle">Found and fixed bugs blocking first-time users from WhatsApp OTP signup (1,500 Sentry events) and breaking the SMS fallback flow between Msg91 and Kaleyra.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">1.5K</div>
+          <div class="impact-label">Sentry Events</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">100%</div>
+          <div class="impact-label">New Users Blocked on WA</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">High</div>
+          <div class="impact-label">Severity</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">Resolved</div>
+          <div class="impact-label">Status</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>Two separate bugs were breaking our OTP login flows. First, every first-time user trying to sign up via WhatsApp OTP hit a 500 error and saw "An error occurred while sending the OTP." Only the WhatsApp path was broken for new customers, silently blocking new customer acquisition. Second, our SMS OTP flow had a cascading failure: Msg91 (primary SMS provider) would sometimes return 500 errors, which triggered the Kaleyra fallback. But Kaleyra's OTP template map didn't have the current domain name (curaahome.com), only the old one (yflhome.com), so the fallback also crashed. Both SMS providers failing meant some users couldn't log in at all.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Root Cause — WhatsApp OTP</div>
+        <p>The OTP handler fetches the customer from the database by phone number. For first-time users, no record exists so the lookup returns <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">undefined</code>. A guard condition had a falsy evaluation bug: <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">!customer && required</code> evaluated to <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">true && undefined → undefined</code> (falsy), so the error handler was skipped. The code passed <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">undefined</code> as the customer to the WhatsApp OTP sender, which crashed on <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">customer.phoneNumber</code>.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Root Cause — SMS OTP Fallback</div>
+        <p>When Msg91 returned a 502, the Kaleyra fallback fired. But the <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">otpTemplates</code> map only had an entry for <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">yflhome.com</code> (the old domain), not <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">curaahome.com</code> (the current domain). So <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">otpTemplates["curaahome.com"]</code> returned <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">undefined</code>, and accessing <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#1a1a24;padding:2px 6px;border-radius:4px;color:#f59e0b;">.content</code> on it threw a TypeError. This meant whenever Msg91 was down, the Kaleyra fallback was also broken, and users got no OTP at all.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>For the WhatsApp bug: fixed the logic so sending OTP doesn't require a customer record to already exist. If the customer isn't in the DB yet (first-time user), the fix uses the phone number from the request input instead of relying on the customer object. For the SMS bug: added the current domain (curaahome.com) to Kaleyra's OTP template map so the fallback actually works when Msg91 goes down.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>All first-time WhatsApp signups unblocked</strong>, new customers can now sign up via WhatsApp OTP without hitting a 500 error</li>
+          <li><strong>SMS fallback actually works now</strong>, added the curaahome.com domain to Kaleyra's template map so when Msg91 goes down, customers still get their OTP</li>
+          <li><strong>1,500+ Sentry errors resolved</strong> across both bugs, cleaning up some of the highest-volume error sources</li>
+          <li><strong>Both login paths secured</strong>, WhatsApp OTP and SMS OTP now work reliably for new and existing customers</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> Two subtle bugs were silently breaking both OTP login paths. The WhatsApp fix unblocked all new customer signups, and the SMS fix ensured the Kaleyra fallback actually works when Msg91 goes down. Small fixes, critical impact on customer acquisition and login reliability.
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Image Optimization Pipeline -->
+  <div class="achievement-card">
+    <div class="card-stripe infra"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="type-tag infra">Infrastructure</span>
+      </div>
+      <h2 class="card-title">Image Optimization Pipeline</h2>
+      <div class="card-subtitle">Automated image compression and modern format conversion, cutting page load times by ~2 seconds and driving measurable conversion uplift.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">60-70%</div>
+          <div class="impact-label">Image Size Reduction</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">~2s</div>
+          <div class="impact-label">Faster Page Loads</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">Better</div>
+          <div class="impact-label">Core Web Vitals</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">0</div>
+          <div class="impact-label">Ongoing Maintenance</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>Product images were served unoptimized — large files, no responsive variants, no WebP/AVIF conversion. Pages loaded slowly, Core Web Vitals scored poorly, CDN bandwidth was bloated, and conversion rates suffered. Every second of slow load time was costing the business money.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>Set up an automated pipeline that compresses images on upload, generates responsive variants for every device size, and converts to modern formats (WebP with JPEG fallback). Images are now served at optimal sizes automatically.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>60-70% smaller images</strong> — same visual quality, drastically reduced payload sizes</li>
+          <li><strong>Better Core Web Vitals</strong> — improved LCP and CLS scores boost SEO rankings and organic traffic</li>
+          <li><strong>Zero ongoing effort</strong> — the pipeline runs automatically on every upload, compounding returns as traffic grows</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> Set it up once, zero ongoing maintenance. Every image uploaded is automatically optimized, pages load faster, and the benefits compound as traffic and catalog size grow.
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Product Authentication via WhatsApp -->
+  <div class="achievement-card">
+    <div class="card-stripe feature"></div>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="type-tag feature">Feature</span>
+      </div>
+      <h2 class="card-title">Product Authentication via WhatsApp QR Codes</h2>
+      <div class="card-subtitle">Replaced manual warranty registration with QR codes in packaging that let customers verify product authenticity instantly through WhatsApp.</div>
+
+      <div class="impact-strip">
+        <div class="impact-metric">
+          <div class="impact-value">Instant</div>
+          <div class="impact-label">Verification</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">0</div>
+          <div class="impact-label">Manual Steps for Customer</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">QR Scan</div>
+          <div class="impact-label">Trigger Method</div>
+        </div>
+        <div class="impact-metric">
+          <div class="impact-value">Automated</div>
+          <div class="impact-label">End-to-End Flow</div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What Happened</div>
+        <p>Customers who wanted to verify their product was authentic and register for warranty had to manually reach out, submit proof of purchase, and wait for someone on the team to verify it. The process was slow and created unnecessary friction for customers who just wanted confirmation that they bought a genuine product.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">What I Did</div>
+        <p>We started placing QR codes inside packaging boxes. Scanning the QR code opens WhatsApp with a prefilled message containing a unique product code. I built a webhook listener on Interakt that receives these codes, validates them against our database, and automatically sends back a WhatsApp message confirming the product is authentic and the warranty is registered.</p>
+      </div>
+
+      <div class="card-section">
+        <div class="section-title">Impact</div>
+        <ul class="impact-list">
+          <li><strong>Instant product verification</strong> for customers, scan a QR code and get a WhatsApp confirmation in seconds</li>
+          <li><strong>Zero manual effort</strong> from the CX or engineering team, the entire flow is automated end-to-end</li>
+          <li><strong>Better customer experience</strong> at the unboxing moment, builds trust and brand loyalty right when excitement is highest</li>
+        </ul>
+      </div>
+
+      <div class="bottom-line">
+        <strong>Bottom line:</strong> Turned product authentication from a manual back-and-forth into a single QR scan. Customers get instant verification on WhatsApp, the team does zero work, and it builds brand trust at the moment that matters most.
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

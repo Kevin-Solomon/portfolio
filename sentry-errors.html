@@ -666,6 +666,10 @@
       <div class="stat-value" style="color:#22c55e;">30</div>
       <div class="stat-label">RCA Complete</div>
     </div>
+    <div class="stat">
+      <div class="stat-value" style="color:#a78bfa;">13</div>
+      <div class="stat-label">Resolved</div>
+    </div>
   </div>
 
   <div class="sort-controls">
@@ -698,6 +702,7 @@ const errors = [
   { name: "ImportError", msg: "62 documents imported successfully, 1 documents failed during import.", endpoint: "PATCH /api/admins/v1/products/:productId/variants/:variantId", events: 109, rca: true, rcaId: "typesense-import", severity: "low", resolved: true },
   { name: "NotFoundError", msg: "Cannot find discount code with 'EXTRASAVING' identifier.", endpoint: "DELETE /api/storefronts/v1.1/carts/:cartId/discount-code", events: 40, rca: true, rcaId: "archived-coupon", severity: "medium", assignee: "Aaliya", sentryUrl: "https://sentry.houseofx.dev/organizations/sentry/issues/4117/?project=5" },
   { name: "BadRequestError", msg: "Cart is not active", endpoint: "PATCH /api/storefronts/v1.1/carts/:cartId/variants", events: 502, assignee: "Kevin" },
+  { name: "BadRequestError", msg: "Cart is not active", endpoint: "POST /api/storefronts/v1.1/carts/:cartId/order-converted", events: 1, assignee: "Kevin", sentryUrl: "https://sentry.houseofx.dev/organizations/sentry/issues/3570/" },
   { name: "BadRequestError", msg: "Cannot modify order with '4e8150e9-719e-490d-b7e1-fe5bf2eb1b23' identifier.", endpoint: "PATCH /api/storefronts/v2/orders/:orderId", events: 15 },
   { name: "ConflictError", msg: "An OTP was already sent to \"\".", endpoint: "POST /api/storefronts/v1.1/customers/otps", events: 31, rca: true, rcaId: "otp-empty-id", severity: "low", resolved: true },
   { name: "ForbiddenError", msg: "This specific order operation is not allowed.", endpoint: "POST /api/storefronts/v1.1/orders/:orderId/cancel", events: 9, rca: true, rcaId: "cancel-forbidden", severity: "low", ignored: true },
