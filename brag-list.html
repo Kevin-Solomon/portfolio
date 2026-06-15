@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kevin Solomon — Engineering Impact Log</title>
+<title>Kevin Solomon - Engineering Impact Log</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -484,23 +484,23 @@
   <div class="hero-inner">
     <div class="hero-eyebrow">Engineering Impact Log</div>
     <h1>Kevin Solomon</h1>
-    <div class="hero-role">Software Engineer at <a href="https://curaahome.com/" target="_blank">House of X</a> — building and breaking production systems for CÜRAA</div>
+    <div class="hero-role">Software Engineer at <a href="https://curaahome.com/" target="_blank">House of X</a> - building and breaking production systems for CÜRAA</div>
     <div class="stats-bar">
       <div class="stat-card">
         <div class="stat-value" style="color:var(--accent);">10</div>
         <div class="stat-label">Achievements</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" style="color:var(--optimization);">930+</div>
-        <div class="stat-label">Hours Saved / yr</div>
+        <div class="stat-value">₹9Cr+</div>
+        <div class="stat-label">Revenue Processed</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">$133K+</div>
-        <div class="stat-label">Revenue Protected / yr</div>
+        <div class="stat-value">36K+</div>
+        <div class="stat-label">Orders Handled</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">$48K+</div>
-        <div class="stat-label">Cost Savings / yr</div>
+        <div class="stat-value">₹22L</div>
+        <div class="stat-label">Revenue from Restocks</div>
       </div>
     </div>
   </div>
@@ -519,7 +519,7 @@
 
   <div id="achievements"></div>
 
-  <div class="footer">Kevin Solomon — Engineering Impact Log — 2026</div>
+  <div class="footer">Kevin Solomon - Engineering Impact Log - 2026</div>
 </div>
 
 <script>
@@ -529,7 +529,7 @@ const achievements = [
     date: "May 13, 2026",
     type: "incident",
     typeLabel: "SEV-1 Incident",
-    title: "Order Placement Outage — 14-Hour RCA & Recovery",
+    title: "Order Placement Outage - 14-Hour RCA & Recovery",
     subtitle: "Led the investigation and resolution of a critical 14-hour outage where 100% of order placements failed. Identified root cause, restored service, and established 6 new engineering practices.",
     metrics: [
       { value: "SEV-1", label: "Severity" },
@@ -565,48 +565,48 @@ const achievements = [
     date: "March 24, 2026",
     type: "incident",
     typeLabel: "Incident Response",
-    title: "NodeJS ECS Server Crash — Event Emitter Fix",
+    title: "NodeJS ECS Server Crash - Event Emitter Fix",
     subtitle: "Production server was crashing every time an unhandled error event fired, taking down the entire API and blocking all orders.",
     metrics: [
       { value: "20 min", label: "Resolution Time" },
-      { value: "50", label: "Orders Protected" },
-      { value: "$42K", label: "Revenue Protected / yr" },
-      { value: "72 hrs", label: "Eng Time Saved / yr" }
+      { value: "1,200+", label: "Orders Protected / yr" },
+      { value: "2/mo", label: "Crashes Before Fix" },
+      { value: "5+", label: "Recurring Crashes Stopped" }
     ],
     sections: [
-      { title: "What Happened", text: `A Node.js EventEmitter was emitting error events without a registered listener. In Node.js, this kills the process. The entire ECS-hosted API server crashed, blocking all order processing. 50 orders were immediately impacted and the CX team was flooded with complaints across WhatsApp, Email, and Instagram. This wasn't a one-off — we had over 5 instances of this crash, each time impacting more and more orders as traffic grew. The blast radius was escalating with every occurrence.` },
+      { title: "What Happened", text: `A Node.js EventEmitter was emitting error events without a registered listener. In Node.js, this kills the process. The entire ECS-hosted API server crashed, blocking all order processing. 50 orders were immediately impacted and the CX team was flooded with complaints across WhatsApp, Email, and Instagram. This wasn't a one-off. We had over 5 instances of this crash, each time impacting more and more orders as traffic grew. The blast radius was escalating with every occurrence.` },
       { title: "What I Did", text: `Identified the missing <code>.on('error')</code> handler, pushed a hotfix in 20 minutes. The process now logs and handles error events gracefully instead of crashing.` }
     ],
     impact: [
-      `<strong>$42,000/year</strong> in revenue protected — each crash put 50+ orders at risk, with the impact growing every time`,
-      `<strong>72 engineering hours/year</strong> saved — that's 9 full working days no longer spent on crash recovery and monitoring`,
-      `<strong>5+ recurring crashes stopped</strong> — this wasn't a one-off; each instance hit harder than the last as order volume scaled, and the fix eliminated the entire class of failures permanently`
+      `<strong>₹36 lakhs/year</strong> in revenue protected. Each crash put 50+ orders at risk, with the impact growing every time`,
+      `<strong>1,200+ orders/year</strong> protected. 50 orders at risk per crash, happening twice a month, now fully eliminated`,
+      `<strong>5+ recurring crashes stopped</strong>. This wasn't a one-off; each instance hit harder than the last as order volume scaled, and the fix eliminated the entire class of failures permanently`
     ],
-    bottomLine: `A 20-minute fix that prevents $42,000/year in lost revenue. Without it, the team would still be firefighting server crashes twice a month instead of building features.`
+    bottomLine: `A 20-minute fix that protects ₹36 lakhs/year in revenue. Without it, the team would still be firefighting server crashes twice a month instead of building features.`
   },
   {
     num: "03",
     date: "January 19, 2026",
     type: "incident",
     typeLabel: "Incident Response",
-    title: "Third-Party API Error Handling — Retry Storm Fix",
+    title: "Third-Party API Error Handling - Retry Storm Fix",
     subtitle: "Unhandled API failures were spamming customers with 15+ duplicate messages and creating ghost orders that required hours of manual cleanup.",
     metrics: [
       { value: "100+", label: "Orders Stabilized" },
       { value: "1,500+", label: "Spam Msgs Prevented" },
-      { value: "$42K", label: "Revenue Protected / yr" },
-      { value: "36 hrs", label: "Eng Time Saved / yr" }
+      { value: "0", label: "Ghost Orders Since Fix" },
+      { value: "1-2 hrs", label: "Cleanup Eliminated / Incident" }
     ],
     sections: [
       { title: "What Happened", text: `Third-party API failures cascaded through the order pipeline unchecked, causing retry storms that sent 15+ duplicate messages per customer. Each incident created 100+ ghost orders on Shopify that had to be manually cancelled, cross-verified with the internal system, and reconciled against the database. The full cleanup took 1-2 hours every time.` },
-      { title: "What I Did", text: `Wrapped all third-party API calls in proper error boundaries with try-catch blocks. Failed operations now get caught and re-inserted into the processing queue for controlled retry — instead of uncontrolled retry storms.` }
+      { title: "What I Did", text: `Wrapped all third-party API calls in proper error boundaries with try-catch blocks. Failed operations now get caught and re-inserted into the processing queue for controlled retry instead of uncontrolled retry storms.` }
     ],
     impact: [
-      `<strong>$42,000/year</strong> in revenue protected — 100 orders at risk per incident, at least once a month`,
-      `<strong>36 engineering hours/year</strong> saved — eliminated 1-2 hours of manual Shopify cleanup per incident`,
-      `<strong>18,000+ spam messages/year</strong> prevented — stopped 1,500+ unwanted messages per incident from hitting customers`
+      `<strong>₹36 lakhs/year</strong> in revenue protected. 100 orders at risk per incident, at least once a month`,
+      `<strong>1,200+ orders/year</strong> stabilized. No more ghost orders or manual Shopify cleanup`,
+      `<strong>18,000+ spam messages/year</strong> prevented. Stopped 1,500+ unwanted messages per incident from hitting customers`
     ],
-    bottomLine: `A few try-catch blocks turned $42,000/year in recurring chaos into a non-issue. The hidden cost was customer trust — a single spam storm of 15+ messages per customer drives chargebacks, negative reviews, and permanent churn.`
+    bottomLine: `A few try-catch blocks turned ₹36 lakhs/year in recurring chaos into a non-issue. The hidden cost was customer trust. A single spam storm of 15+ messages per customer drives chargebacks, negative reviews, and permanent churn.`
   },
   {
     num: "04",
@@ -621,16 +621,16 @@ const achievements = [
       { value: "30 min", label: "Max Resolution Time" }
     ],
     sections: [
-      { title: "What Happened", text: `Every day we received at least 2-3 queries about Snapmint orders not syncing — on high-traffic days the number would double. Snapmint's APIs were taking too long to resolve order statuses, leaving paid orders unsynced in our database and Shopify. Customers would see no confirmation, panic, and flood CX on WhatsApp demanding cancellations or refunds — sometimes a week after paying. This was destroying trust. Every time a complaint came in, I had to stop what I was working on, query the database to find the user, run a manual update query, and insert the order into our SQS service to trigger the sync. Pure context-switching overhead that pulled me away from feature work.` },
-      { title: "What I Did", text: `Built a cron job that runs every 30 minutes, scans all orders from the last 24 hours that are marked as paid but not synced in our database or Shopify, and automatically triggers the sync through SQS. The entire manual workflow — database lookup, update query, SQS insertion — is now fully automated.` }
+      { title: "What Happened", text: `Every day we received at least 2-3 queries about Snapmint orders not syncing. On high-traffic days the number would double. Snapmint's APIs were taking too long to resolve order statuses, leaving paid orders unsynced in our database and Shopify. Customers would see no confirmation, panic, and flood CX on WhatsApp demanding cancellations or refunds, sometimes a week after paying. This was destroying trust. Every time a complaint came in, I had to stop what I was working on, query the database to find the user, run a manual update query, and insert the order into our SQS service to trigger the sync. Pure context-switching overhead that pulled me away from feature work.` },
+      { title: "What I Did", text: `Built a cron job that runs every 30 minutes, scans all orders from the last 24 hours that are marked as paid but not synced in our database or Shopify, and automatically triggers the sync through SQS. The entire manual workflow (database lookup, update query, SQS insertion) is now fully automated.` }
     ],
     impact: [
-      `<strong>CX complaints dropped to zero</strong> — went from 2-3 daily complaints (4-6 on high-traffic days) to none after going live`,
-      `<strong>Resolution time: days → minutes</strong> — orders that used to sit unsynced for 3-7 days now sync within 30 minutes automatically`,
-      `<strong>Eliminated constant context switching</strong> — no longer getting pulled out of feature work multiple times a day to manually fix sync issues`,
-      `<strong>Customer trust restored</strong> — customers who paid for orders no longer wait days wondering if their purchase went through`
+      `<strong>CX complaints dropped to zero</strong>. Went from 2-3 daily complaints (4-6 on high-traffic days) to none after going live`,
+      `<strong>Resolution time: days → minutes</strong>. Orders that used to sit unsynced for 3-7 days now sync within 30 minutes automatically`,
+      `<strong>Eliminated constant context switching</strong>. No longer getting pulled out of feature work multiple times a day to manually fix sync issues`,
+      `<strong>Customer trust restored</strong>. Customers who paid for orders no longer wait days wondering if their purchase went through`
     ],
-    bottomLine: `A single cron job eliminated a daily source of CX complaints, freed up engineering time that was being lost to repetitive manual fixes, and restored customer trust in the payment experience. The best part — since going live, not a single complaint from CX about unsynced Snapmint orders.`
+    bottomLine: `A single cron job eliminated a daily source of CX complaints, freed up engineering time that was being lost to repetitive manual fixes, and restored customer trust in the payment experience. The best part: since going live, not a single complaint from CX about unsynced Snapmint orders.`
   },
   {
     num: "05",
@@ -662,12 +662,12 @@ const achievements = [
     num: "06",
     type: "feature",
     typeLabel: "Feature",
-    title: "Notify Me Module — Back-in-Stock Recovery",
+    title: "Notify Me Module - Back-in-Stock Recovery",
     subtitle: "Built a Notify Me system that replaced removing out-of-stock products from the site. 16,000+ subscribers, 500 attributed orders, ₹22L in recovered revenue.",
     metrics: [
       { value: "16K+", label: "Subscribers" },
       { value: "500", label: "Attributed Orders" },
-      { value: "₹22L", label: "Recovered Revenue" },
+      { value: "₹22L", label: "Revenue from Restocks" },
       { value: "~3.1%", label: "Conversion Rate" }
     ],
     sections: [
@@ -687,20 +687,20 @@ const achievements = [
     num: "07",
     type: "optimization",
     typeLabel: "Cost Optimization",
-    title: "hox-core Migration — NPM Dependency Eliminated",
+    title: "hox-core Migration - NPM Dependency Eliminated",
     subtitle: "Moved shared reusable code from a paid NPM package into our microservices repo. Eliminated $7/month subscription, CI/CD build failures, and 2.5 years of unnecessary dependency.",
     metrics: [
       { value: "2.5 yrs", label: "Unnecessary Spend" },
-      { value: "$7/mo", label: "Recurring Cost Cut" },
+      { value: "₹600/mo", label: "Recurring Cost Cut" },
       { value: "0", label: "Blocked Deploys from NPM" },
       { value: "1", label: "External Dependency Removed" }
     ],
     sections: [
-      { title: "What Happened", text: `Our reusable code lived in a separate package called hox-core, hosted on a paid NPM account at $7/month. We had been paying this subscription for about 2.5 years. The real problem wasn't just the cost. During CI/CD builds, NPM would sometimes return errors, breaking our entire build pipeline and blocking deployments. We couldn't deploy anything until NPM resolved their issue or we kept retrying. This became a serious problem during critical moments when something needed to go live immediately.` },
+      { title: "What Happened", text: `Our reusable code lived in a separate package called hox-core, hosted on a paid NPM account at ₹600/month. We had been paying this subscription for about 2.5 years. The real problem wasn't just the cost. During CI/CD builds, NPM would sometimes return errors, breaking our entire build pipeline and blocking deployments. We couldn't deploy anything until NPM resolved their issue or we kept retrying. This became a serious problem during critical moments when something needed to go live immediately.` },
       { title: "What I Did", text: `Moved the entire hox-core reusable code into our main API services repo where our microservices already lived. All the shared code is now co-located and reused within that folder. Deleted the NPM account and cancelled the subscription entirely.` }
     ],
     impact: [
-      `<strong>$7/month subscription eliminated</strong> permanently, after paying ~$210 over 2.5 years for something that could live in our own repo`,
+      `<strong>₹600/month subscription eliminated</strong> permanently, after paying ~₹18K over 2.5 years for something that could live in our own repo`,
       `<strong>CI/CD build failures from NPM gone</strong>, no more blocked deployments because NPM is having a bad day`,
       `<strong>No more deployment delays during critical moments</strong>, when something needs to go live immediately, the build pipeline no longer depends on an external service`,
       `<strong>Simpler codebase</strong>, shared code lives alongside the services that use it, no version management or package publishing overhead`
@@ -711,7 +711,7 @@ const achievements = [
     num: "08",
     type: "incident",
     typeLabel: "Bug Fix",
-    title: "OTP Login Fixes — WhatsApp + SMS Flows",
+    title: "OTP Login Fixes - WhatsApp + SMS Flows",
     subtitle: "Found and fixed bugs blocking first-time users from WhatsApp OTP signup (1,500 Sentry events) and breaking the SMS fallback flow between Msg91 and Kaleyra.",
     metrics: [
       { value: "1.5K", label: "Sentry Events" },
@@ -721,8 +721,8 @@ const achievements = [
     ],
     sections: [
       { title: "What Happened", text: `Two separate bugs were breaking our OTP login flows. First, every first-time user trying to sign up via WhatsApp OTP hit a 500 error and saw "An error occurred while sending the OTP." Only the WhatsApp path was broken for new customers, silently blocking new customer acquisition. Second, our SMS OTP flow had a cascading failure: Msg91 (primary SMS provider) would sometimes return 500 errors, which triggered the Kaleyra fallback. But Kaleyra's OTP template map didn't have the current domain name (curaahome.com), only the old one (yflhome.com), so the fallback also crashed. Both SMS providers failing meant some users couldn't log in at all.` },
-      { title: "Root Cause — WhatsApp OTP", text: `The OTP handler fetches the customer from the database by phone number. For first-time users, no record exists so the lookup returns <code>undefined</code>. A guard condition had a falsy evaluation bug: <code>!customer && required</code> evaluated to <code>true && undefined → undefined</code> (falsy), so the error handler was skipped. The code passed <code>undefined</code> as the customer to the WhatsApp OTP sender, which crashed on <code>customer.phoneNumber</code>.` },
-      { title: "Root Cause — SMS OTP Fallback", text: `When Msg91 returned a 502, the Kaleyra fallback fired. But the <code>otpTemplates</code> map only had an entry for <code>yflhome.com</code> (the old domain), not <code>curaahome.com</code> (the current domain). So <code>otpTemplates["curaahome.com"]</code> returned <code>undefined</code>, and accessing <code>.content</code> on it threw a TypeError. This meant whenever Msg91 was down, the Kaleyra fallback was also broken, and users got no OTP at all.` },
+      { title: "Root Cause - WhatsApp OTP", text: `The OTP handler fetches the customer from the database by phone number. For first-time users, no record exists so the lookup returns <code>undefined</code>. A guard condition had a falsy evaluation bug: <code>!customer && required</code> evaluated to <code>true && undefined → undefined</code> (falsy), so the error handler was skipped. The code passed <code>undefined</code> as the customer to the WhatsApp OTP sender, which crashed on <code>customer.phoneNumber</code>.` },
+      { title: "Root Cause - SMS OTP Fallback", text: `When Msg91 returned a 502, the Kaleyra fallback fired. But the <code>otpTemplates</code> map only had an entry for <code>yflhome.com</code> (the old domain), not <code>curaahome.com</code> (the current domain). So <code>otpTemplates["curaahome.com"]</code> returned <code>undefined</code>, and accessing <code>.content</code> on it threw a TypeError. This meant whenever Msg91 was down, the Kaleyra fallback was also broken, and users got no OTP at all.` },
       { title: "What I Did", text: `For the WhatsApp bug: fixed the logic so sending OTP doesn't require a customer record to already exist. If the customer isn't in the DB yet (first-time user), the fix uses the phone number from the request input instead of relying on the customer object. For the SMS bug: added the current domain (curaahome.com) to Kaleyra's OTP template map so the fallback actually works when Msg91 goes down.` }
     ],
     impact: [
@@ -746,13 +746,13 @@ const achievements = [
       { value: "0", label: "Ongoing Maintenance" }
     ],
     sections: [
-      { title: "What Happened", text: `Product images were served unoptimized — large files, no responsive variants, no WebP/AVIF conversion. Pages loaded slowly, Core Web Vitals scored poorly, CDN bandwidth was bloated, and conversion rates suffered. Every second of slow load time was costing the business money.` },
+      { title: "What Happened", text: `Product images were served unoptimized. Large files, no responsive variants, no WebP/AVIF conversion. Pages loaded slowly, Core Web Vitals scored poorly, CDN bandwidth was bloated, and conversion rates suffered. Every second of slow load time was costing the business money.` },
       { title: "What I Did", text: `Set up an automated pipeline that compresses images on upload, generates responsive variants for every device size, and converts to modern formats (WebP with JPEG fallback). Images are now served at optimal sizes automatically.` }
     ],
     impact: [
-      `<strong>60-70% smaller images</strong> — same visual quality, drastically reduced payload sizes`,
-      `<strong>Better Core Web Vitals</strong> — improved LCP and CLS scores boost SEO rankings and organic traffic`,
-      `<strong>Zero ongoing effort</strong> — the pipeline runs automatically on every upload, compounding returns as traffic grows`
+      `<strong>60-70% smaller images</strong>. Same visual quality, drastically reduced payload sizes`,
+      `<strong>Better Core Web Vitals</strong>. Improved LCP and CLS scores boost SEO rankings and organic traffic`,
+      `<strong>Zero ongoing effort</strong>. The pipeline runs automatically on every upload, compounding returns as traffic grows`
     ],
     bottomLine: `Set it up once, zero ongoing maintenance. Every image uploaded is automatically optimized, pages load faster, and the benefits compound as traffic and catalog size grow.`
   },
