@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Funnel: 3,072 suborders to 28 candidates (5 confirmed exploits)</title>
+<style>
+    body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 980px; color: #1a1a1a; }
+    h1 { font-size: 1.35rem; text-align: center; }
+    .stage-label { text-align: center; color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; margin: 1.6rem 0 0.5rem; }
+    .node { border: 2px solid #444; border-radius: 8px; padding: 0.7rem 1rem; margin: 0 auto; max-width: 620px; text-align: center; background: #fff; }
+    .node .big { font-size: 1.25rem; font-weight: 700; }
+    .node .sub { font-size: 0.82rem; color: #555; margin-top: 0.15rem; }
+    .arrow { text-align: center; font-size: 1.3rem; color: #888; line-height: 1.6; }
+    .arrow .note { font-size: 0.78rem; color: #777; }
+    .split { display: flex; gap: 1rem; justify-content: center; align-items: stretch; max-width: 900px; margin: 0 auto; }
+    .split .node { flex: 1; margin: 0; max-width: none; }
+    .excluded { border-color: #bbb; background: #f6f6f6; color: #666; }
+    .excluded .big { color: #888; }
+    .clean { border-color: #7bbf8e; background: #eefaf0; }
+    .keep { border-color: #1a56a8; background: #e7f0fe; }
+    .exploit { border-color: #b3261e; background: #fdecea; }
+    .exploit .big { color: #b3261e; font-size: 1.5rem; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.83rem; margin: 0.8rem auto; }
+    th, td { border: 1px solid #ddd; padding: 0.4rem 0.55rem; text-align: left; vertical-align: top; }
+    th { background: #f5f5f5; }
+    td.num { text-align: right; font-weight: 700; white-space: nowrap; }
+    tr.hl { background: #fdecea; }
+    .money { text-align: center; font-size: 0.9rem; margin-top: 0.6rem; }
+    .money strong { color: #b3261e; }
+    .incident { border: 2px solid #d98b1f; background: #fff8ec; border-radius: 8px; padding: 0.9rem 1.1rem; margin: 1.4rem auto; max-width: 900px; font-size: 0.86rem; }
+    .incident h3 { margin: 0 0 0.5rem; font-size: 1rem; color: #a15c00; }
+    .incident .metrics { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0.7rem 0; }
+    .incident .metric { flex: 1 1 130px; border: 1px solid #e6cfa0; border-radius: 6px; background: #fff; padding: 0.5rem 0.6rem; text-align: center; }
+    .incident .metric .n { font-size: 1.15rem; font-weight: 700; color: #a15c00; }
+    .incident .metric .l { font-size: 0.72rem; color: #7a5a20; margin-top: 0.1rem; }
+    .incident code { background: #f3e7cf; padding: 0.05rem 0.3rem; border-radius: 3px; }
+    .legendline { text-align: center; color: #888; font-size: 0.78rem; margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<h1>From 3,072 suborders to 28 candidates - re-verified to 5 confirmed exploits</h1>
+<p style="text-align:center" class="sub">Every suborder of every cancelled order placed since Oct 8, 2024, funnelled through DB, Shopify, EasyEcom, payments and cancellation-audit checks. Investigation Jul 14-15, 2026; the 28 candidates re-verified with exact refund-vs-delivery timestamps Jul 16-17, 2026 (see the red panel below).</p>
+
+<div class="stage-label">Stage 1 - suborders (shipment level)</div>
+
+<div class="node">
+    <div class="big">3,072 suborders</div>
+    <div class="sub">all suborders of all cancelled orders (orders.status = 4) placed since 2024-10-08</div>
+</div>
+
+<div class="arrow">&#9660;</div>
+
+<div class="split">
+    <div class="node excluded">
+        <div class="big">121 never synced</div>
+        <div class="sub">empty name = cancelled before a Shopify order was ever created. No shipment possible; excluded from lookups, kept as context rows</div>
+    </div>
+    <div class="node">
+        <div class="big">2,951 named</div>
+        <div class="sub">each looked up in Shopify by suborder name (fulfillment, shipment, financial status, refunds)</div>
+    </div>
+</div>
+
+<div class="arrow">&#9660;<div class="note">Shopify Admin API check (~30 min run)</div></div>
+
+<div class="split">
+    <div class="node excluded">
+        <div class="big">2,116 unfulfilled / restocked</div>
+        <div class="sub">2,095 no shipment ever + 21 restocked (the normal cancellation path)</div>
+    </div>
+    <div class="node keep">
+        <div class="big">835 fulfilled</div>
+        <div class="sub">shipment created and handed to a courier despite the cancellation</div>
+    </div>
+</div>
+
+<div class="arrow">&#9660;<div class="note">reverse sweep: all 2,116 "unfulfilled" also reconciled against EasyEcom</div></div>
+
+<div class="split">
+    <div class="node excluded">
+        <div class="big">2,112 consistent</div>
+        <div class="sub">EasyEcom agrees nothing shipped (1,199 cancelled, 842 never reached EasyEcom, 49 shipment cancelled, 22 label only)</div>
+    </div>
+    <div class="node keep">
+        <div class="big">+4 sync-gap</div>
+        <div class="sub">goods moved but the fulfillment never synced back to Shopify (3 delivered, 1 RTO)</div>
+    </div>
+</div>
+
+<div class="arrow">&#9660;</div>
+
+<div class="node keep">
+    <div class="big">839 suborders with verified movement</div>
+    <div class="sub">of which <strong>787 courier-verified DELIVERED</strong> (confirmed by both Shopify and EasyEcom courier feeds);
+    the other 52: 25+ failed deliveries, RTOs and stale in-transit shipments</div>
+</div>
+
+<div class="stage-label">Stage 2 - group shipments into parent orders</div>
+
+<div class="arrow">&#9660;<div class="note">group the 839 suborders by orderId (orders were split into 2-11 suborders each)</div></div>
+
+<div class="node keep">
+    <div class="big">404 affected orders / 398 customers</div>
+    <div class="sub">every order where goods verifiably moved although the DB says CANCELLED</div>
+</div>
+
+<div class="stage-label">Stage 3 - eliminate the non-exploit explanations (order level)</div>
+
+<div class="arrow">&#9660;<div class="note">cross-checked against refunds table, Shopify refunds, payments (COD/prepaid), orderCancellations audit trail</div></div>
+
+<table>
+<thead>
+<tr><th>Filter</th><th>Orders</th><th>Why they are not exploit</th></tr>
+</thead>
+<tbody>
+<tr>
+    <td>Start: verified movement despite cancellation</td>
+    <td class="num">404</td>
+    <td>-</td>
+</tr>
+<tr>
+    <td>No refund anywhere, never really cancelled (May-31-2025 mass-cancellation sweep + background artifacts; 364 orders have no orderCancellations record at all)</td>
+    <td class="num">~358</td>
+    <td>Customer paid and kept the goods - a normal completed sale wearing a wrong status. Nobody gained anything.</td>
+</tr>
+<tr>
+    <td>COD marked SUCCESS but RTO</td>
+    <td class="num">9</td>
+    <td>Goods came back, cash was never collected - no money and no goods changed hands improperly.</td>
+</tr>
+<tr>
+    <td>Refunded via Shopify admin only</td>
+    <td class="num">6</td>
+    <td>Refund was proportionate: only the unshipped suborder's exact price was returned; delivered goods stayed paid. Legitimate partial refunds through an untracked channel.</td>
+</tr>
+<tr>
+    <td>Customer-cancelled, delivered, never refunded</td>
+    <td class="num">3</td>
+    <td>The opposite of exploit - the company owes them, not the reverse (Tanaya Das, Anil Madan, Padmasree A).</td>
+</tr>
+<tr class="hl">
+    <td><strong>Full refund + courier-verified delivery</strong></td>
+    <td class="num">28</td>
+    <td><strong>Candidate exploits: money back AND goods delivered.</strong> Full SUCCESS refund in our refunds table (&ge;95% of order total), courier-verified delivery on the same order, none are May-31 sweep artifacts. <strong>But</strong> this test never checked whether the refund came before or after delivery - re-verification (red panel below) splits these 28 into 5 real exploits, 21 operational leaks and 2 CS refunds.</td>
+</tr>
+</tbody>
+</table>
+
+<div class="incident">
+    <h3>&#9888; Root cause of the ~358 "never really cancelled" bucket: the 31 May 2025 shopify-consumer incident (347 of these orders)</h3>
+    <p>Confirmed in git: hotfix <code>0e1e730eb</code> (2025-05-31 17:13 IST, "removed <code>SlackUtils</code> calls in shopify-consumer")
+    ripped the Slack alerting out of <code>cancel-order-app.ts</code> / <code>sync-order-app.ts</code>. The alerts were wrapped in
+    <code>backOff</code> retry (3 attempts, exponential), so a failing Slack webhook stalled and failed SQS message processing, and
+    messages were redelivered. This coincided with a manual Shopify bulk-cancel that over-selected ("selected the odd 400... it canceled a
+    few more, some bug" - Engineering chat, ~18:02). The result was a mass cancel + restock + payment-void sweep of orders that had
+    <strong>already been delivered months earlier</strong>.</p>
+
+    <div class="metrics">
+        <div class="metric"><div class="n">347 / 358</div><div class="l">orders in this bucket cancelled on 2025-05-31 (97%)</div></div>
+        <div class="metric"><div class="n">471 / 761</div><div class="l">suborders cancelled on 2025-05-31 (62%), all cancelReason=customer</div></div>
+        <div class="metric"><div class="n">455</div><div class="l">confirmed DELIVERED in EasyEcom (97%)</div></div>
+        <div class="metric"><div class="n">16</div><div class="l">had any physical return (returnedQty &gt; 0)</div></div>
+        <div class="metric"><div class="n">&#8377;0</div><div class="l">actually refunded - all voids/paperwork, no cash out</div></div>
+        <div class="metric"><div class="n">&#8377;5.63L</div><div class="l">COD collected on delivered orders now marked cancelled</div></div>
+        <div class="metric"><div class="n">&#8377;6.02L</div><div class="l">total order value swept (delivered subset &#8377;5.52L)</div></div>
+    </div>
+
+    <p><strong>Interpretation:</strong> these are incident artifacts, not real customer cancellations. The goods were delivered and (for COD)
+    cash was collected by couriers back in Jan-May; the cancel/restock/void happened later during the incident. The exposure is
+    <strong>accounting-integrity, not customer liability</strong>: phantom restocks (inventory overstated for delivered units) and
+    unrecognized / unmatched COD revenue. Correct action is to reverse the phantom restocks and re-recognize the revenue - not to
+    investigate each as a dispute. These rows are excluded from the 28 exploit cases (none of the exploit refunds fall on 31 May).</p>
+</div>
+
+<div class="arrow">&#9660;<div class="note">re-verified Jul 16-17 2026: each refund's exact timestamp (IST) compared against its courier delivery scan, plus refund-admin + cancellation-reason tables</div></div>
+
+<div class="incident" style="border-color:#b3261e;background:#fdf2f1">
+    <h3>&#9888; Re-verification: the 28 candidates collapse to 5 confirmed exploits once refund timing is checked</h3>
+    <p>The 28 were flagged on "full SUCCESS refund AND courier-verified delivery" - both true, but the original pass never checked the
+    <strong>order of those two events</strong>. A real exploit needs the goods <em>delivered first</em>, then a <em>customer</em> self-refund.
+    Comparing each refund's exact timestamp against its delivery scan (and the refund-admin / cancellation tables) reclassifies all 28:</p>
+
+    <div class="metrics">
+        <div class="metric"><div class="n">5 &middot; &#8377;17,875</div><div class="l">CONFIRMED EXPLOIT - delivered, THEN a customer self-cancel auto-refund. Axita, Vivek, Pooja, Priyank, Milind (Milind refunded 15 min after delivery)</div></div>
+        <div class="metric"><div class="n">21 &middot; &#8377;84,829</div><div class="l">OPERATIONAL LEAK - refund landed 0.4-4.7 days BEFORE delivery; parcel already manifested, cancelled+refunded in transit, delivered anyway, returnedQty 0. A logistics/recovery problem, not deliberate abuse</div></div>
+        <div class="metric"><div class="n">2 &middot; &#8377;6,413</div><div class="l">CS REFUND - admin-issued post-delivery by Rajesh ("received only the outer box", "kettle too big to use"). Legitimate service refunds</div></div>
+    </div>
+
+    <p><strong>Khushi Gehlot is not a confirmed repeat exploiter.</strong> Her 3 orders are all operational leaks - each refund preceded delivery.
+    They are instead <strong>soft-exploit flagged</strong>: cancelled citing "delivery too long" with goods never returned, a plausible but
+    unprovable "claim-delay-then-keep" pattern (11 such cases, &#8377;37,151, incl. the Rajdeep Sarkar internal &#8377;60 test). Separating a genuine
+    logistics leak from soft-exploit needs RTO / courier-POD / customer-contact evidence that timestamps alone cannot give.</p>
+
+    <p><strong>Enabling bug (unchanged):</strong> the refund flow never checks sibling suborders' fulfillment state, and the "order is shipped,
+    cannot cancel" guard in <code>cancel-order-app</code> has been dead since Jan 2025 (misspelled field <code>order_fullfilment</code> + mapping
+    lookup that misses split orders). It lets both the exploits and the leaks through.</p>
+</div>
+
+<div class="split">
+    <div class="node exploit">
+        <div class="big">5 confirmed exploits &middot; &#8377;17,875</div>
+        <div class="sub">deliver-then-extract, customer self-cancel - the only provable abuse. Escalate these.</div>
+    </div>
+    <div class="node keep">
+        <div class="big">21 operational leaks &middot; &#8377;84,829</div>
+        <div class="sub">refund before delivery; recover via courier/RTO. 11 soft-exploit flagged (&#8377;37,151) incl. Khushi Gehlot x3 - investigate further.</div>
+    </div>
+    <div class="node clean">
+        <div class="big">2 CS refunds &middot; &#8377;6,413</div>
+        <div class="sub">legitimate admin refunds (Rajesh). No action.</div>
+    </div>
+</div>
+
+<p class="legendline">Blue = kept in the funnel &middot; grey = eliminated with proof &middot; red = confirmed exploit &middot; green = handled internally.
+Generated 2026-07-15; re-verification appended 2026-07-17.</p>
+
+</body>
+</html>
